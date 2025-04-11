@@ -5,6 +5,7 @@
     import type { Feature, Geometry, GeoJsonProperties } from 'geojson';
     import type { PathOptions } from 'leaflet';
 
+    
     let map: any;
     let mapContainer: HTMLDivElement;
     let geojsonLayer: any;
@@ -65,6 +66,18 @@
         }
     }
 
+    function handleFeatureClick(feature: Feature<Geometry, GeoJsonProperties>) {
+        selectedFeature = feature;
+        isModalOpen = true;
+    }
+
+    function handleModalClose() {
+        isModalOpen = false;
+        selectedFeature = null;
+        currentStatus = '';
+        currentNotes = '';
+    }
+
     onMount(async () => {
         if (!browser) return;
 
@@ -73,7 +86,7 @@
         await import('leaflet/dist/leaflet.css');
 
         // Initialize map
-        map = L.map(mapContainer).setView([27.3364, -82.5307], 12); // Sarasota coordinates
+        map = L.map(mapContainer).setView([27.29550, -82.52077], 14); // Sarasota coordinates
 
         // Add OpenStreetMap tiles
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -92,15 +105,12 @@
                     color: statusColors[status] || '#000',
                     weight: 2,
                     opacity: 0.8,
-                    fillOpacity: 0.3
+                    fillOpacity: 0.8
                 };
             },
             onEachFeature: (feature: Feature<Geometry, GeoJsonProperties>, layer: any) => {
                 layer.on({
-                    click: () => {
-                        selectedFeature = feature;
-                        isModalOpen = true;
-                    }
+                    click: () => handleFeatureClick(feature)
                 });
             }
         }).addTo(map);
@@ -115,7 +125,8 @@
         feature={selectedFeature}
         {currentStatus}
         {currentNotes}
-        on:save={({ detail }) => updateStatus(detail)}
+        onSave={updateStatus}
+        onClose={handleModalClose}
     />
 {/if}
 
