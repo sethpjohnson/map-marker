@@ -57,6 +57,12 @@
                             layer.setStyle({
                                 fillColor: statusColors[data.status]
                             });
+                            // Update the feature's properties
+                            feature.properties = {
+                                ...feature.properties,
+                                status: data.status,
+                                notes: data.notes
+                            };
                         }
                     }
                 });
@@ -76,6 +82,33 @@
         selectedFeature = null;
         currentStatus = '';
         currentNotes = '';
+    }
+
+    async function applyStatusToFeatures() {
+        try {
+            const response = await fetch('/api/dredging_sections');
+            if (response.ok) {
+                const statusData = await response.json();
+                geojsonLayer.eachLayer((layer: any) => {
+                    if (layer.feature) {
+                        const feature = layer.feature as Feature<Geometry, GeoJsonProperties>;
+                        const status = statusData.find((s: any) => s.feature_id === feature.properties?.facilityid);
+                        if (status) {
+                            feature.properties = {
+                                ...feature.properties,
+                                status: status.status,
+                                notes: status.notes
+                            };
+                            layer.setStyle({
+                                fillColor: statusColors[status.status as Status]
+                            });
+                        }
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Error applying status to features:', error);
+        }
     }
 
     onMount(async () => {
@@ -114,6 +147,9 @@
                 });
             }
         }).addTo(map);
+
+        // Apply saved status data to features
+        await applyStatusToFeatures();
     });
 </script>
 
