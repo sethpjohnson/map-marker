@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS dredging_sections (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    feature_id TEXT NOT NULL UNIQUE,
+    status TEXT NOT NULL,
+    notes TEXT,
+    last_updated DATETIME DEFAULT CURRENT_TIMESTAMP
+);
