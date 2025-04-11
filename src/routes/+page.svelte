@@ -24,20 +24,36 @@
                 <h2 class="text-xl font-semibold mb-4">Status Legend</h2>
                 <div class="space-y-2">
                     <div class="flex items-center">
-                        <div class="w-4 h-4 bg-[#FFA500] mr-2"></div>
-                        <span>Planned</span>
+                        <div class="w-4 h-4 bg-[#808080] mr-2"></div>
+                        <span>Unknown</span>
                     </div>
                     <div class="flex items-center">
-                        <div class="w-4 h-4 bg-[#008000] mr-2"></div>
-                        <span>Funded</span>
+                        <div class="w-4 h-4 bg-[#87CEEB] mr-2"></div>
+                        <span>Survey Planned</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-[#800080] mr-2"></div>
+                        <span>Engineering</span>
                     </div>
                     <div class="flex items-center">
                         <div class="w-4 h-4 bg-[#FF0000] mr-2"></div>
-                        <span>Not Funded</span>
+                        <span>Ready - Not Funded</span>
                     </div>
                     <div class="flex items-center">
-                        <div class="w-4 h-4 bg-[#0000FF] mr-2"></div>
-                        <span>Completed</span>
+                        <div class="w-4 h-4 bg-[#FFA500] mr-2"></div>
+                        <span>Ready - Partially Funded</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-[#FFFF00] mr-2"></div>
+                        <span>Ready - Fully Funded</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-[#008000] mr-2"></div>
+                        <span>In Progress</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-[#000080] mr-2"></div>
+                        <span>Complete</span>
                     </div>
                 </div>
             </div>

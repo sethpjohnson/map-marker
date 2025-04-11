@@ -2,7 +2,7 @@
     import { browser } from '$app/environment';
     import type { Feature, Geometry, GeoJsonProperties } from 'geojson';
 
-    type Status = 'planned' | 'funded' | 'not funded' | 'completed';
+    type Status = 'unknown' | 'survey_planned' | 'engineering' | 'ready_not_funded' | 'ready_partially_funded' | 'ready_fully_funded' | 'in_progress' | 'complete';
 
     export let isOpen = false;
     export let feature: Feature<Geometry, GeoJsonProperties> | null = null;
@@ -68,10 +68,14 @@
                         on:change={handleStatusChange}
                     >
                         <option value="">Select a status...</option>
-                        <option value="planned">Planned</option>
-                        <option value="funded">Funded</option>
-                        <option value="not funded">Not Funded</option>
-                        <option value="completed">Completed</option>
+                        <option value="unknown">Unknown</option>
+                        <option value="survey_planned">Survey Planned</option>
+                        <option value="engineering">Engineering</option>
+                        <option value="ready_not_funded">Ready - Not Funded</option>
+                        <option value="ready_partially_funded">Ready - Partially Funded</option>
+                        <option value="ready_fully_funded">Ready - Fully Funded</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="complete">Complete</option>
                     </select>
                 </div>
 

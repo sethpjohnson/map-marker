@@ -14,12 +14,16 @@
     let currentStatus = '';
     let currentNotes = '';
 
-    type Status = 'planned' | 'funded' | 'not funded' | 'completed';
+    type Status = 'unknown' | 'survey_planned' | 'engineering' | 'ready_not_funded' | 'ready_partially_funded' | 'ready_fully_funded' | 'in_progress' | 'complete';
     const statusColors: Record<Status, string> = {
-        'planned': '#FFA500', // Orange
-        'funded': '#008000',  // Green
-        'not funded': '#FF0000', // Red
-        'completed': '#0000FF' // Blue
+        'unknown': '#808080', // Gray
+        'survey_planned': '#87CEEB', // Light Blue
+        'engineering': '#800080', // Purple
+        'ready_not_funded': '#FF0000', // Red
+        'ready_partially_funded': '#FFA500', // Orange
+        'ready_fully_funded': '#FFFF00', // Yellow
+        'in_progress': '#008000', // Green
+        'complete': '#000080' // Dark Blue
     };
 
     async function fetchStatus(featureId: string) {
@@ -121,9 +125,9 @@
         // Initialize map
         map = L.map(mapContainer).setView([27.29550, -82.52077], 14); // Sarasota coordinates
 
-        // Add OpenStreetMap tiles
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        // Add OpenStreetMap Water Color tiles
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
         }).addTo(map);
 
         // Load GeoJSON data
@@ -136,8 +140,8 @@
                 const status = feature.properties?.status as Status;
                 return {
                     color: statusColors[status] || '#000',
-                    weight: 2,
-                    opacity: 0.8,
+                    weight: 1,
+                    opacity: 0.3,
                     fillOpacity: 0.8
                 };
             },
