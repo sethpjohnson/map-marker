@@ -185,4 +185,9 @@
     :global(.leaflet-pane) {
         z-index: 0;
     }
+
+    .w-full {
+        height: 100%;
+        min-height: 0;
+    }
 </style> 

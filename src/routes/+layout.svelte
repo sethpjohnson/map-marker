@@ -18,5 +18,13 @@
 		height: 100vh;
 		width: 100vw;
 		overflow-x: hidden;
+		display: flex;
+		flex-direction: column;
+	}
+
+	:global(#svelte) {
+		height: 100%;
+		display: flex;
+		flex-direction: column;
 	}
 </style>

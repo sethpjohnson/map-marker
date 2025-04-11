@@ -4,12 +4,12 @@
 </script>
 
 <div class="min-h-screen bg-base-200">
-    <div class="container mx-auto p-4">
+    <div class="container mx-auto p-4 h-[calc(100vh-2rem)] flex flex-col">
         <h1 class="text-3xl font-bold mb-4">Phillippi Creek Dredging Tracker</h1>
         
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+        <div class="flex-1 flex flex-col lg:flex-row gap-4 min-h-0">
             <!-- Map -->
-            <div class="lg:col-span-3 h-[600px] bg-white rounded-lg shadow-lg">
+            <div class="flex-1 bg-white rounded-lg shadow-lg h-full">
                 {#if browser}
                     <Map />
                 {:else}
@@ -20,7 +20,7 @@
             </div>
 
             <!-- Legend -->
-            <div class="bg-white p-4 rounded-lg shadow-lg">
+            <div class="lg:w-64 bg-white p-4 rounded-lg shadow-lg">
                 <h2 class="text-xl font-semibold mb-4">Status Legend</h2>
                 <div class="space-y-2">
                     <div class="flex items-center">
