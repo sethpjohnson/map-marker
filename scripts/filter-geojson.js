@@ -15,7 +15,12 @@ try {
     
     // Filter features that are part of Phillippi Creek (wbid: '1937')
     const phillippiFeatures = geojsonData.features.filter(feature => {
-        return feature.properties?.name === 'PHILLIPPI CREEK';
+        return feature.properties?.name === 'PHILLIPPI CREEK' || 
+            feature.properties?.objectid === 296 ||  // Seclusion Lake
+            feature.properties?.objectid === 3440 || // Seclusion Lake
+            feature.properties?.objectid === 8346 || // Seculsion Lake
+            feature.properties?.objectid === 1106 || // Misc Creek
+            feature.properties?.objectid === 1888;  // Canal to Creek
     });
 
     // Create new GeoJSON with filtered features
@@ -25,7 +30,7 @@ try {
     };
 
     // Write the filtered GeoJSON to a new file
-    fs.writeFileSync(outputPath, JSON.stringify(filteredGeoJSON, null, 2));
+    fs.writeFileSync(outputPath, JSON.stringify(filteredGeoJSON, null, null));
     
     console.log(`Original features count: ${geojsonData.features.length}`);
     console.log(`Filtered ${phillippiFeatures.length} Phillippi Creek features (wbid: 1937)`);
