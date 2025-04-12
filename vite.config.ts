@@ -5,14 +5,7 @@ export default defineConfig({
 	plugins: [sveltekit()],
 	build: {
 		target: 'esnext',
-		sourcemap: false,
-		rollupOptions: {
-			output: {
-				manualChunks: {
-					'leaflet': ['leaflet']
-				}
-			}
-		}
+		sourcemap: false
 	},
 	server: {
 		fs: {
