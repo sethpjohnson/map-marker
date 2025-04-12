@@ -51,76 +51,35 @@
     }
 
     async function updateStatus(data: { feature_id: string; status: Status; notes: string }) {
+        if (!import.meta.env.DEV) return;
+        
         try {
-            if (import.meta.env.DEV) {
-                const response = await fetch('/api/dredging_sections', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
+            const response = await fetch('/api/dredging_sections', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
 
-                if (response.ok) {
-                    // Update the feature's style
-                    geojsonLayer.eachLayer((layer: any) => {
-                        if (layer.feature) {
-                            const feature = layer.feature as Feature<Geometry, GeoJsonProperties>;
-                            if (feature.properties?.facilityid === data.feature_id) {
-                                layer.setStyle({
-                                    fillColor: statusColors[data.status]
-                                });
-                                // Update the feature's properties
-                                feature.properties = {
-                                    ...feature.properties,
-                                    status: data.status,
-                                    notes: data.notes
-                                };
-                            }
+            if (response.ok) {
+                // Update the feature's style
+                geojsonLayer.eachLayer((layer: any) => {
+                    if (layer.feature) {
+                        const feature = layer.feature as Feature<Geometry, GeoJsonProperties>;
+                        if (feature.properties?.facilityid === data.feature_id) {
+                            layer.setStyle({
+                                fillColor: statusColors[data.status]
+                            });
+                            // Update the feature's properties
+                            feature.properties = {
+                                ...feature.properties,
+                                status: data.status,
+                                notes: data.notes
+                            };
                         }
-                    });
-                }
-            } else {
-                const response = await fetch('/map-marker/dredging_sections.json');
-                if (response.ok) {
-                    const jsonData = await response.json();
-                    const sections = jsonData.sections;
-                    const existingIndex = sections.findIndex((s: any) => s.feature_id === data.feature_id);
-                    
-                    if (existingIndex >= 0) {
-                        sections[existingIndex] = {
-                            ...sections[existingIndex],
-                            status: data.status,
-                            notes: data.notes,
-                            last_updated: new Date().toISOString()
-                        };
-                    } else {
-                        sections.push({
-                            feature_id: data.feature_id,
-                            status: data.status,
-                            notes: data.notes,
-                            last_updated: new Date().toISOString()
-                        });
                     }
-
-                    // Update the feature's style
-                    geojsonLayer.eachLayer((layer: any) => {
-                        if (layer.feature) {
-                            const feature = layer.feature as Feature<Geometry, GeoJsonProperties>;
-                            if (feature.properties?.facilityid === data.feature_id) {
-                                layer.setStyle({
-                                    fillColor: statusColors[data.status]
-                                });
-                                // Update the feature's properties
-                                feature.properties = {
-                                    ...feature.properties,
-                                    status: data.status,
-                                    notes: data.notes
-                                };
-                            }
-                        }
-                    });
-                }
+                });
             }
         } catch (error) {
             console.error('Error updating status:', error);
@@ -128,15 +87,19 @@
     }
 
     function handleFeatureClick(feature: Feature<Geometry, GeoJsonProperties>) {
-        selectedFeature = feature;
-        isModalOpen = true;
+        if (import.meta.env.DEV) {
+            selectedFeature = feature;
+            isModalOpen = true;
+        }
     }
 
     function handleModalClose() {
-        isModalOpen = false;
-        selectedFeature = null;
-        currentStatus = '';
-        currentNotes = '';
+        if (import.meta.env.DEV) {
+            isModalOpen = false;
+            selectedFeature = null;
+            currentStatus = '';
+            currentNotes = '';
+        }
     }
 
     async function applyStatusToFeatures() {
@@ -219,16 +182,16 @@
 {#if browser}
     <div class="w-full h-full relative" bind:this={mapContainer}></div>
 
-    <StatusModal
-        isOpen={isModalOpen}
-        feature={selectedFeature}
-        {currentStatus}
-        {currentNotes}
-        onSave={updateStatus}
-        onClose={handleModalClose}
-    />
-
-
+    {#if import.meta.env.DEV}
+        <StatusModal
+            isOpen={isModalOpen}
+            feature={selectedFeature}
+            {currentStatus}
+            {currentNotes}
+            onSave={updateStatus}
+            onClose={handleModalClose}
+        />
+    {/if}
 {/if}
 
 <style>
