@@ -1,24 +1,14 @@
 import { json } from '@sveltejs/kit';
-import fs from 'fs';
-import path from 'path';
 
 export async function GET() {
     try {
-        // Read the filtered GeoJSON file
-        const geojsonPath = path.join(process.cwd(), 'static', 'phillippi_creek.geojson');
-        
-        // Check if file exists
-        if (!fs.existsSync(geojsonPath)) {
-            console.error('GeoJSON file not found at:', geojsonPath);
-            return json({ error: 'GeoJSON file not found' }, { status: 404 });
-        }
-
-        // Read and parse the file
-        const geojsonData = JSON.parse(fs.readFileSync(geojsonPath, 'utf-8'));
-        console.log(`Serving ${geojsonData.features.length} Phillippi Creek features`);
-
-        // Return the GeoJSON data
-        return json(geojsonData);
+        // The file is now served directly from static/phillippi_creek.geojson
+        return new Response(null, {
+            status: 301,
+            headers: {
+                Location: '/phillippi_creek.geojson'
+            }
+        });
     } catch (error) {
         console.error('Error processing GeoJSON:', error);
         return json({ 

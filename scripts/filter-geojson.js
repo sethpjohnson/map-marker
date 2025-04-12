@@ -19,6 +19,7 @@ try {
             feature.properties?.objectid === 296 ||  // Seclusion Lake
             feature.properties?.objectid === 3440 || // Seclusion Lake
             feature.properties?.objectid === 8346 || // Seculsion Lake
+            feature.properties?.objectid === 470 || // Blossom Brook Canal
             feature.properties?.objectid === 1106 || // Misc Creek
             feature.properties?.objectid === 1888;  // Canal to Creek
     });

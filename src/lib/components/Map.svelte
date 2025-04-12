@@ -5,6 +5,7 @@
     import type { Feature, Geometry, GeoJsonProperties } from 'geojson';
     import type { PathOptions } from 'leaflet';
 
+    export let hoveredFeature: Feature<Geometry, GeoJsonProperties> | null = null;
     
     let map: any;
     let mapContainer: HTMLDivElement;
@@ -28,11 +29,18 @@
 
     async function fetchStatus(featureId: string) {
         try {
-            const response = await fetch(`/api/dredging_sections?feature_id=${featureId}`);
+            const response = await fetch(import.meta.env.DEV ? `/api/dredging_sections?feature_id=${featureId}` : '/dredging_sections.json');
             if (response.ok) {
                 const data = await response.json();
-                if (data.length > 0) {
-                    return data[0];
+                if (import.meta.env.DEV) {
+                    if (data.length > 0) {
+                        return data[0];
+                    }
+                } else {
+                    const section = data.sections.find((s: any) => s.feature_id === featureId);
+                    if (section) {
+                        return section;
+                    }
                 }
             }
             return null;
@@ -44,32 +52,75 @@
 
     async function updateStatus(data: { feature_id: string; status: Status; notes: string }) {
         try {
-            const response = await fetch('/api/dredging_sections', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
-
-            if (response.ok) {
-                // Update the feature's style
-                geojsonLayer.eachLayer((layer: any) => {
-                    if (layer.feature) {
-                        const feature = layer.feature as Feature<Geometry, GeoJsonProperties>;
-                        if (feature.properties?.facilityid === data.feature_id) {
-                            layer.setStyle({
-                                fillColor: statusColors[data.status]
-                            });
-                            // Update the feature's properties
-                            feature.properties = {
-                                ...feature.properties,
-                                status: data.status,
-                                notes: data.notes
-                            };
-                        }
-                    }
+            if (import.meta.env.DEV) {
+                const response = await fetch('/api/dredging_sections', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
                 });
+
+                if (response.ok) {
+                    // Update the feature's style
+                    geojsonLayer.eachLayer((layer: any) => {
+                        if (layer.feature) {
+                            const feature = layer.feature as Feature<Geometry, GeoJsonProperties>;
+                            if (feature.properties?.facilityid === data.feature_id) {
+                                layer.setStyle({
+                                    fillColor: statusColors[data.status]
+                                });
+                                // Update the feature's properties
+                                feature.properties = {
+                                    ...feature.properties,
+                                    status: data.status,
+                                    notes: data.notes
+                                };
+                            }
+                        }
+                    });
+                }
+            } else {
+                const response = await fetch('/dredging_sections.json');
+                if (response.ok) {
+                    const jsonData = await response.json();
+                    const sections = jsonData.sections;
+                    const existingIndex = sections.findIndex((s: any) => s.feature_id === data.feature_id);
+                    
+                    if (existingIndex >= 0) {
+                        sections[existingIndex] = {
+                            ...sections[existingIndex],
+                            status: data.status,
+                            notes: data.notes,
+                            last_updated: new Date().toISOString()
+                        };
+                    } else {
+                        sections.push({
+                            feature_id: data.feature_id,
+                            status: data.status,
+                            notes: data.notes,
+                            last_updated: new Date().toISOString()
+                        });
+                    }
+
+                    // Update the feature's style
+                    geojsonLayer.eachLayer((layer: any) => {
+                        if (layer.feature) {
+                            const feature = layer.feature as Feature<Geometry, GeoJsonProperties>;
+                            if (feature.properties?.facilityid === data.feature_id) {
+                                layer.setStyle({
+                                    fillColor: statusColors[data.status]
+                                });
+                                // Update the feature's properties
+                                feature.properties = {
+                                    ...feature.properties,
+                                    status: data.status,
+                                    notes: data.notes
+                                };
+                            }
+                        }
+                    });
+                }
             }
         } catch (error) {
             console.error('Error updating status:', error);
@@ -90,13 +141,15 @@
 
     async function applyStatusToFeatures() {
         try {
-            const response = await fetch('/api/dredging_sections');
+            const response = await fetch(import.meta.env.DEV ? '/api/dredging_sections' : '/dredging_sections.json');
             if (response.ok) {
-                const statusData = await response.json();
+                const data = await response.json();
                 geojsonLayer.eachLayer((layer: any) => {
                     if (layer.feature) {
                         const feature = layer.feature as Feature<Geometry, GeoJsonProperties>;
-                        const status = statusData.find((s: any) => s.feature_id === feature.properties?.facilityid);
+                        const status = import.meta.env.DEV 
+                            ? data.find((s: any) => s.feature_id === feature.properties?.facilityid)
+                            : data.sections.find((s: any) => s.feature_id === feature.properties?.facilityid);
                         if (status) {
                             feature.properties = {
                                 ...feature.properties,
@@ -131,7 +184,7 @@
         }).addTo(map);
 
         // Load GeoJSON data
-        const response = await fetch('/api/geojson');
+        const response = await fetch('/phillippi_creek.geojson');
         const data = await response.json();
 
         geojsonLayer = new L.GeoJSON(data, {
@@ -147,7 +200,13 @@
             },
             onEachFeature: (feature: Feature<Geometry, GeoJsonProperties>, layer: any) => {
                 layer.on({
-                    click: () => handleFeatureClick(feature)
+                    click: () => handleFeatureClick(feature),
+                    mouseover: () => {
+                        hoveredFeature = feature;
+                    },
+                    mouseout: () => {
+                        hoveredFeature = null;
+                    }
                 });
             }
         }).addTo(map);
@@ -168,6 +227,8 @@
         onSave={updateStatus}
         onClose={handleModalClose}
     />
+
+
 {/if}
 
 <style>

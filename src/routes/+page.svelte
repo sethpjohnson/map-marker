@@ -2,6 +2,9 @@
     import { browser } from '$app/environment';
     import Map from '$lib/components/Map.svelte';
     import '$lib/styles/colors.css';
+    import type { Feature, Geometry, GeoJsonProperties } from 'geojson';
+
+    let hoveredFeature: Feature<Geometry, GeoJsonProperties> | null = null;
 </script>
 
 <div class="min-h-screen bg-base-200">
@@ -12,7 +15,7 @@
             <!-- Map -->
             <div class="flex-1 bg-white rounded-lg shadow-lg h-full">
                 {#if browser}
-                    <Map />
+                    <Map bind:hoveredFeature />
                 {:else}
                     <div class="flex items-center justify-center h-full">
                         <p>Loading map...</p>
@@ -57,6 +60,38 @@
                         <span>Complete</span>
                     </div>
                 </div>
+
+                {#if hoveredFeature}
+                    <div class="mt-8 pt-4 border-t border-gray-200">
+                        <h3 class="font-semibold mb-4">Section {hoveredFeature.properties?.name}</h3>
+                        <table class="w-full text-sm">
+                            <tbody>
+                                <tr class="border-b border-gray-200">
+                                    <td class="py-2 font-medium">Status</td>
+                                    <td class="py-2">{hoveredFeature.properties?.status || 'Unknown'}</td>
+                                </tr>
+                                {#if hoveredFeature.properties?.notes}
+                                    <tr class="border-b border-gray-200">
+                                        <td class="py-2 font-medium">Notes</td>
+                                        <td class="py-2">{hoveredFeature.properties.notes}</td>
+                                    </tr>
+                                {/if}
+                                <tr class="border-b border-gray-200">
+                                    <td class="py-2 font-medium">Ownership</td>
+                                    <td class="py-2">{hoveredFeature.properties?.ownership}</td>
+                                </tr>
+                                <tr class="border-b border-gray-200">
+                                    <td class="py-2 font-medium">Maintained by</td>
+                                    <td class="py-2">{hoveredFeature.properties?.maintenanceentity}</td>
+                                </tr>
+                                <tr class="border-b border-gray-200">
+                                    <td class="py-2 font-medium">Maintenance Type</td>
+                                    <td class="py-2">{hoveredFeature.properties?.maintenancetype}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                {/if}
             </div>
         </div>
     </div>

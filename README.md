@@ -1,38 +1,65 @@
-# sv
+# Phillippi Creek Dredging Tracker
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A web application to visualize and track dredging status for Phillippi Creek in Sarasota, FL.
 
-## Creating a project
+## Development
 
-If you're seeing this, you've probably already done this step. Congrats!
-
+1. Install dependencies:
 ```bash
-# create a new project in the current directory
-npx sv create
-
-# create a new project in my-app
-npx sv create my-app
+pnpm install
 ```
 
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
+2. Start the development server:
 ```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+pnpm run dev
 ```
 
-## Building
+3. The app will be available at `http://localhost:5173`
 
-To create a production version of your app:
+## Deployment
 
+The application is configured to deploy to GitHub Pages. The deployment process is automated using GitHub Actions.
+
+### Manual Deployment
+
+1. Export the database to JSON:
 ```bash
-npm run build
+pnpm run export-db
 ```
 
-You can preview the production build with `npm run preview`.
+2. Build the static site:
+```bash
+pnpm run build
+```
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+3. The built files will be in the `build` directory.
+
+### Automatic Deployment
+
+1. Push your changes to the `main` branch
+2. GitHub Actions will automatically:
+   - Export the database to JSON
+   - Build the static site
+   - Deploy to GitHub Pages
+
+The site will be available at `https://[your-username].github.io/maps`
+
+## Data Management
+
+During development, the application uses a SQLite database for data storage. When deploying to GitHub Pages, the data is exported to a JSON file.
+
+To update the data:
+1. Make changes in the development environment
+2. Export the database to JSON:
+```bash
+pnpm run export-db
+```
+3. Commit and push the changes
+
+## Technologies Used
+
+- SvelteKit
+- Leaflet
+- TailwindCSS + DaisyUI
+- SQLite (development)
+- GitHub Pages (deployment)
