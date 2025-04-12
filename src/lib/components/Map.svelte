@@ -14,6 +14,7 @@
     let isModalOpen = false;
     let currentStatus = '';
     let currentNotes = '';
+    let showModal = false;
 
     type Status = 'unknown' | 'survey_planned' | 'engineering' | 'ready_not_funded' | 'ready_partially_funded' | 'ready_fully_funded' | 'in_progress' | 'complete';
     const statusColors: Record<Status, string> = {
@@ -52,54 +53,49 @@
 
     async function updateStatus(data: { feature_id: string; status: Status; notes: string }) {
         if (!import.meta.env.DEV) return;
-        
-        try {
-            const response = await fetch('/api/dredging_sections', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
+        if (!selectedFeature) return;
 
-            if (response.ok) {
-                // Update the feature's style
-                geojsonLayer.eachLayer((layer: any) => {
-                    if (layer.feature) {
-                        const feature = layer.feature as Feature<Geometry, GeoJsonProperties>;
-                        if (feature.properties?.facilityid === data.feature_id) {
-                            layer.setStyle({
-                                fillColor: statusColors[data.status]
-                            });
-                            // Update the feature's properties
-                            feature.properties = {
-                                ...feature.properties,
-                                status: data.status,
-                                notes: data.notes
-                            };
-                        }
-                    }
+        const featureId = selectedFeature.properties?.id;
+        if (!featureId) return;
+
+        // Update the feature's status
+        selectedFeature.properties = {
+            ...selectedFeature.properties,
+            status: data.status,
+            notes: data.notes
+        };
+
+        // Update the GeoJSON layer
+        geojsonLayer?.eachLayer((layer: any) => {
+            if (layer.feature?.properties?.id === featureId) {
+                layer.setStyle({
+                    color: statusColors[data.status] || '#000',
+                    weight: 1,
+                    opacity: 0.3,
+                    fillOpacity: 0.8
                 });
             }
-        } catch (error) {
-            console.error('Error updating status:', error);
-        }
+        });
+
+        // Save to localStorage
+        const savedStatus = JSON.parse(localStorage.getItem('creek_status') || '{}');
+        savedStatus[featureId] = data.status;
+        localStorage.setItem('creek_status', JSON.stringify(savedStatus));
+
+        // Close modal
+        handleModalClose();
     }
 
     function handleFeatureClick(feature: Feature<Geometry, GeoJsonProperties>) {
-        if (import.meta.env.DEV) {
-            selectedFeature = feature;
-            isModalOpen = true;
-        }
+        if (!import.meta.env.DEV) return;
+        selectedFeature = feature;
+        showModal = true;
     }
 
     function handleModalClose() {
-        if (import.meta.env.DEV) {
-            isModalOpen = false;
-            selectedFeature = null;
-            currentStatus = '';
-            currentNotes = '';
-        }
+        if (!import.meta.env.DEV) return;
+        showModal = false;
+        selectedFeature = null;
     }
 
     async function applyStatusToFeatures() {
@@ -163,7 +159,11 @@
             },
             onEachFeature: (feature: Feature<Geometry, GeoJsonProperties>, layer: any) => {
                 layer.on({
-                    click: () => handleFeatureClick(feature),
+                    click: () => {
+                        if (import.meta.env.DEV) {
+                            handleFeatureClick(feature);
+                        }
+                    },
                     mouseover: () => {
                         hoveredFeature = feature;
                     },
@@ -184,7 +184,7 @@
 
     {#if import.meta.env.DEV}
         <StatusModal
-            isOpen={isModalOpen}
+            isOpen={showModal}
             feature={selectedFeature}
             {currentStatus}
             {currentNotes}
