@@ -2,6 +2,7 @@
     import { onMount } from 'svelte';
     import { browser } from '$app/environment';
     import StatusModal from './StatusModal.svelte';
+    import MapTooltip from './MapTooltip.svelte';
     import type { Feature, Geometry, GeoJsonProperties } from 'geojson';
     import type { PathOptions } from 'leaflet';
 
@@ -15,6 +16,8 @@
     let currentStatus = '';
     let currentNotes = '';
     let showModal = false;
+    let showTooltip = false;
+    let clickCoordinates: [number, number] | null = null;
 
     type Status = 'unknown' | 'survey_planned' | 'engineering' | 'ready_not_funded' | 'ready_partially_funded' | 'ready_fully_funded' | 'in_progress' | 'complete';
     const statusColors: Record<Status, string> = {
@@ -87,15 +90,26 @@
         handleModalClose();
     }
 
-    function handleFeatureClick(feature: Feature<Geometry, GeoJsonProperties>) {
-        if (!import.meta.env.DEV) return;
+    function handleFeatureClick(feature: Feature<Geometry, GeoJsonProperties>, e: any) {
         selectedFeature = feature;
-        showModal = true;
+        showTooltip = true;
+        // Convert layer point to screen point
+        const layerPoint = e.layerPoint;
+        const containerPoint = map.containerPointToLayerPoint(layerPoint);
+        const screenPoint = map.layerPointToContainerPoint(containerPoint);
+        clickCoordinates = [screenPoint.x, screenPoint.y];
+        
+        if (import.meta.env.DEV) {
+            showModal = true;
+        }
     }
 
     function handleModalClose() {
-        if (!import.meta.env.DEV) return;
-        showModal = false;
+        showTooltip = false;
+        clickCoordinates = null;
+        if (import.meta.env.DEV) {
+            showModal = false;
+        }
         selectedFeature = null;
     }
 
@@ -171,11 +185,7 @@
             },
             onEachFeature: (feature: Feature<Geometry, GeoJsonProperties>, layer: any) => {
                 layer.on({
-                    click: () => {
-                        if (import.meta.env.DEV) {
-                            handleFeatureClick(feature);
-                        }
-                    },
+                    click: (e: any) => handleFeatureClick(feature, e),
                     mouseover: () => {
                         hoveredFeature = feature;
                     },
@@ -194,15 +204,26 @@
 {#if browser}
     <div class="w-full h-full relative" bind:this={mapContainer}></div>
 
+    <!-- Tooltip for both environments -->
+    <MapTooltip
+        feature={selectedFeature}
+        isOpen={showTooltip}
+        coordinates={clickCoordinates}
+        on:close={handleModalClose}
+    />
+
+    <!-- Editor for dev only -->
     {#if import.meta.env.DEV}
-        <StatusModal
-            isOpen={showModal}
-            feature={selectedFeature}
-            {currentStatus}
-            {currentNotes}
-            onSave={updateStatus}
-            onClose={handleModalClose}
-        />
+        <div class="fixed bottom-0 left-0 right-0 md:right-auto md:w-80 bg-white shadow-lg rounded-t-lg md:rounded-t-none md:rounded-l-lg z-50">
+            <StatusModal
+                isOpen={showModal}
+                feature={selectedFeature}
+                {currentStatus}
+                {currentNotes}
+                onSave={updateStatus}
+                onClose={handleModalClose}
+            />
+        </div>
     {/if}
 {/if}
 
@@ -225,5 +246,30 @@
     .w-full {
         height: 100%;
         min-height: 0;
+    }
+
+    /* Mobile optimizations */
+    @media (max-width: 768px) {
+        :global(.leaflet-control-zoom) {
+            margin: 10px !important;
+        }
+
+        :global(.leaflet-control-attribution) {
+            font-size: 10px;
+            padding: 2px 4px;
+        }
+    }
+
+    /* Desktop sidebar */
+    @media (min-width: 768px) {
+        .fixed {
+            bottom: 0;
+            left: 0;
+            width: 320px;
+            height: 100%;
+            border-radius: 0;
+            border-top-left-radius: 0.5rem;
+            border-bottom-left-radius: 0.5rem;
+        }
     }
 </style> 

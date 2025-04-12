@@ -43,72 +43,70 @@
 
 {#if browser}
     {#if isOpen && feature}
-        <!-- Modal backdrop -->
-        <button 
-            type="button"
-            class="fixed inset-0 bg-black bg-opacity-50 z-40 w-full h-full cursor-default" 
-            on:click={handleClose}
-            on:keydown={(e) => e.key === 'Escape' && handleClose()}
-            aria-label="Close modal"
-        ></button>
-        
-        <!-- Modal content -->
-        <div class="modal modal-open z-50">
-            <div class="modal-box relative bg-white">
-                <h3 class="font-bold text-xl mb-6">Update Dredging Status</h3>
-                
-                <div class="form-control w-full max-w-md mb-4">
-                    <label class="label" for="status-select">
-                        <p class="label-text text-base font-medium">Status</p>
-                    </label>
-                    <select 
-                        id="status-select"
-                        class="select select-bordered w-full bg-white" 
-                        value={currentStatus}
-                        on:change={handleStatusChange}
-                    >
-                        <option value="">Select a status...</option>
-                        <option value="unknown">Unknown</option>
-                        <option value="survey_planned">Survey Planned</option>
-                        <option value="engineering">Engineering</option>
-                        <option value="ready_not_funded">Ready - Not Funded</option>
-                        <option value="ready_partially_funded">Ready - Partially Funded</option>
-                        <option value="ready_fully_funded">Ready - Fully Funded</option>
-                        <option value="in_progress">In Progress</option>
-                        <option value="complete">Complete</option>
-                    </select>
-                </div>
+        <div class="w-full h-full p-4">
+            <div class="flex justify-between items-start mb-4">
+                <h3 class="font-bold text-xl">Update Dredging Status</h3>
+                <button 
+                    type="button"
+                    class="text-gray-500 hover:text-gray-700"
+                    on:click={handleClose}
+                    aria-label="Close editor"
+                >
+                    ✕
+                </button>
+            </div>
+            
+            <div class="form-control w-full mb-4">
+                <label class="label" for="status-select">
+                    <p class="label-text text-base font-medium">Status</p>
+                </label>
+                <select 
+                    id="status-select"
+                    class="select select-bordered w-full bg-white" 
+                    value={currentStatus}
+                    on:change={handleStatusChange}
+                >
+                    <option value="">Select a status...</option>
+                    <option value="unknown">Unknown</option>
+                    <option value="survey_planned">Survey Planned</option>
+                    <option value="engineering">Engineering</option>
+                    <option value="ready_not_funded">Ready - Not Funded</option>
+                    <option value="ready_partially_funded">Ready - Partially Funded</option>
+                    <option value="ready_fully_funded">Ready - Fully Funded</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="complete">Complete</option>
+                </select>
+            </div>
 
-                <div class="form-control w-full max-w-md mb-6">
-                    <label class="label" for="notes-textarea">
-                        <span class="label-text text-base font-medium">Notes</span>
-                    </label>
-                    <textarea 
-                        id="notes-textarea"
-                        class="textarea textarea-bordered h-32 bg-white" 
-                        placeholder="Add notes about this section..."
-                        value={currentNotes}
-                        on:input={handleNotesChange}
-                    ></textarea>
-                </div>
+            <div class="form-control w-full mb-6">
+                <label class="label" for="notes-textarea">
+                    <span class="label-text text-base font-medium">Notes</span>
+                </label>
+                <textarea 
+                    id="notes-textarea"
+                    class="textarea textarea-bordered h-32 bg-white" 
+                    placeholder="Add notes about this section..."
+                    value={currentNotes}
+                    on:input={handleNotesChange}
+                ></textarea>
+            </div>
 
-                <div class="modal-action">
-                    <button 
-                        type="button"
-                        class="btn btn-ghost" 
-                        on:click={handleClose}
-                    >
-                        Cancel
-                    </button>
-                    <button 
-                        type="button"
-                        class="btn btn-primary" 
-                        on:click={handleSave}
-                        disabled={!currentStatus}
-                    >
-                        Save Changes
-                    </button>
-                </div>
+            <div class="flex justify-end gap-4">
+                <button 
+                    type="button"
+                    class="btn btn-ghost" 
+                    on:click={handleClose}
+                >
+                    Cancel
+                </button>
+                <button 
+                    type="button"
+                    class="btn btn-primary" 
+                    on:click={handleSave}
+                    disabled={!currentStatus}
+                >
+                    Save Changes
+                </button>
             </div>
         </div>
     {/if}
