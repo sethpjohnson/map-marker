@@ -1,6 +1,8 @@
 # Phillippi Creek Dredging Tracker
 
-A web application to visualize and track dredging status for Phillippi Creek in Sarasota, FL.
+A quick and dirty Svelte app to visualize dredging status for Phillippi Creek in Sarasota, FL. I might do more with this in the future but for now it just helps me take screenshots of different parts of the creek in different colors.
+
+This could be used in other places, as long as you have the GeoJSON file with all of the geometry. Most of the time you can get this from the county or city's website.
 
 ## Development
 
