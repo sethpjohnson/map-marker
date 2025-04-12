@@ -1,23 +1,22 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import { browser } from '$app/environment';
-    import StatusModal from './StatusModal.svelte';
-    import MapTooltip from './MapTooltip.svelte';
     import type { Feature, Geometry, GeoJsonProperties } from 'geojson';
     import type { PathOptions } from 'leaflet';
+    import type L from 'leaflet';
+    import PopupContent from './PopupContent.svelte';
+    import MapControls from './MapControls.svelte';
+    import MapDebug from './MapDebug.svelte';
 
     export let hoveredFeature: Feature<Geometry, GeoJsonProperties> | null = null;
     
-    let map: any;
+    let map: L.Map;
     let mapContainer: HTMLDivElement;
-    let geojsonLayer: any;
+    let geojsonLayer: L.GeoJSON;
     let selectedFeature: Feature<Geometry, GeoJsonProperties> | null = null;
-    let isModalOpen = false;
-    let currentStatus = '';
-    let currentNotes = '';
-    let showModal = false;
-    let showTooltip = false;
-    let clickCoordinates: [number, number] | null = null;
+    let leaflet: typeof L;
+    let currentPopup: L.Popup | null = null;
+    let debugMessages: string[] = [];
 
     type Status = 'unknown' | 'survey_planned' | 'engineering' | 'ready_not_funded' | 'ready_partially_funded' | 'ready_fully_funded' | 'in_progress' | 'complete';
     const statusColors: Record<Status, string> = {
@@ -31,46 +30,17 @@
         'complete': getComputedStyle(document.documentElement).getPropertyValue('--status-complete')
     };
 
-    async function fetchStatus(featureId: string) {
-        try {
-            const response = await fetch(import.meta.env.DEV ? '/dredging_sections.json' : '/map-marker/dredging_sections.json');
-            if (response.ok) {
-                const data = await response.json();
-                if (import.meta.env.DEV) {
-                    if (data.length > 0) {
-                        return data[0];
-                    }
-                } else {
-                    const section = data.sections.find((s: any) => s.feature_id === featureId);
-                    if (section) {
-                        return section;
-                    }
-                }
-            }
-            return null;
-        } catch (error) {
-            console.error('Error fetching status:', error);
-            return null;
-        }
-    }
-
-    async function updateStatus(data: { feature_id: string; status: Status; notes: string }) {
-        if (!import.meta.env.DEV) return;
+    export async function updateStatus(data: { feature_id: string; status: Status; notes: string }) {
         if (!selectedFeature) return;
 
-        const featureId = selectedFeature.properties?.id;
-        if (!featureId) return;
-
-        // Update the feature's status
         selectedFeature.properties = {
             ...selectedFeature.properties,
             status: data.status,
             notes: data.notes
         };
 
-        // Update the GeoJSON layer
         geojsonLayer?.eachLayer((layer: any) => {
-            if (layer.feature?.properties?.id === featureId) {
+            if (layer.feature?.properties?.facilityid === data.feature_id) {
                 layer.setStyle({
                     fillColor: statusColors[data.status] || '#000',
                     color: '#000',
@@ -81,36 +51,61 @@
             }
         });
 
-        // Save to localStorage
         const savedStatus = JSON.parse(localStorage.getItem('creek_status') || '{}');
-        savedStatus[featureId] = data.status;
+        savedStatus[data.feature_id] = {
+            status: data.status,
+            notes: data.notes
+        };
         localStorage.setItem('creek_status', JSON.stringify(savedStatus));
 
-        // Close modal
-        handleModalClose();
+        if (currentPopup) {
+            const popupDiv = document.createElement('div');
+            new PopupContent({
+                target: popupDiv,
+                props: {
+                    feature: selectedFeature,
+                    status: data.status,
+                    notes: data.notes
+                }
+            });
+            currentPopup.setContent(popupDiv.innerHTML);
+        }
     }
 
-    function handleFeatureClick(feature: Feature<Geometry, GeoJsonProperties>, e: any) {
-        selectedFeature = feature;
-        showTooltip = true;
-        // Convert layer point to screen point
-        const layerPoint = e.layerPoint;
-        const containerPoint = map.containerPointToLayerPoint(layerPoint);
-        const screenPoint = map.layerPointToContainerPoint(containerPoint);
-        clickCoordinates = [screenPoint.x, screenPoint.y];
+    function handleFeatureClick(feature: Feature<Geometry, GeoJsonProperties>, e: L.LeafletMouseEvent) {
+        debugMessages = [...debugMessages, `${new Date().toISOString()}: handleFeatureClick called with event type: ${e.type}`];
         
-        if (import.meta.env.DEV) {
-            showModal = true;
-        }
+        selectedFeature = feature;
+        hoveredFeature = feature;
+        
+        map.closePopup();
+        
+        const popupDiv = document.createElement('div');
+        new PopupContent({
+            target: popupDiv,
+            props: {
+                feature,
+                status: feature.properties?.status || 'unknown',
+                notes: feature.properties?.notes || ''
+            }
+        });
+
+        currentPopup = leaflet.popup({
+            className: 'custom-popup',
+            closeButton: true,
+            autoClose: false,
+            closeOnClick: false,
+            maxWidth: 300
+        })
+        .setLatLng(e.latlng)
+        .setContent(popupDiv.innerHTML)
+        .openOn(map);
     }
 
-    function handleModalClose() {
-        showTooltip = false;
-        clickCoordinates = null;
-        if (import.meta.env.DEV) {
-            showModal = false;
-        }
+    function handleFeatureUnclick() {
         selectedFeature = null;
+        hoveredFeature = null;
+        currentPopup = null;
     }
 
     async function applyStatusToFeatures() {
@@ -149,23 +144,19 @@
     onMount(async () => {
         if (!browser) return;
 
-        // Dynamically import Leaflet only on the client side
-        const L = await import('leaflet');
+        leaflet = await import('leaflet');
         await import('leaflet/dist/leaflet.css');
 
-        // Initialize map
-        map = L.map(mapContainer).setView([27.29550, -82.52077], 14); // Sarasota coordinates
+        map = leaflet.map(mapContainer).setView([27.29550, -82.52077], 14);
 
-        // Add OpenStreetMap Water Color tiles
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        leaflet.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
         }).addTo(map);
 
-        // Load GeoJSON data
         const response = await fetch(import.meta.env.DEV ? '/phillippi_creek.geojson' : '/map-marker/phillippi_creek.geojson');
         const data = await response.json();
 
-        geojsonLayer = new L.GeoJSON(data, {
+        geojsonLayer = new leaflet.GeoJSON(data, {
             style: (feature?: Feature<Geometry, GeoJsonProperties>): PathOptions => {
                 if (!feature) return { 
                     fillColor: '#000',
@@ -183,49 +174,38 @@
                     fillOpacity: 0.8
                 };
             },
-            onEachFeature: (feature: Feature<Geometry, GeoJsonProperties>, layer: any) => {
+            onEachFeature: (feature: Feature<Geometry, GeoJsonProperties>, layer: L.Layer) => {
                 layer.on({
-                    click: (e: any) => handleFeatureClick(feature, e),
-                    mouseover: () => {
-                        hoveredFeature = feature;
-                    },
+                    click: (e: L.LeafletMouseEvent) => handleFeatureClick(feature, e),
                     mouseout: () => {
-                        hoveredFeature = null;
+                        if (layer instanceof leaflet.Path) {
+                            layer.setStyle({
+                                weight: 1,
+                                opacity: 0.3,
+                                fillOpacity: 0.8
+                            });
+                        }
                     }
                 });
             }
         }).addTo(map);
 
-        // Apply saved status data to features
+        mapContainer.addEventListener('touchstart', (e) => {
+            debugMessages = [...debugMessages, `Global touchstart: ${JSON.stringify({
+                type: e.type,
+                touches: e.touches.length,
+                target: (e.target as HTMLElement)?.tagName
+            })}`];
+        }, { passive: false });
+
         await applyStatusToFeatures();
     });
 </script>
 
-{#if browser}
-    <div class="w-full h-full relative" bind:this={mapContainer}></div>
+<div class="w-full h-full" bind:this={mapContainer}>
+    <MapControls {map} {leaflet} />
 
-    <!-- Tooltip for both environments -->
-    <MapTooltip
-        feature={selectedFeature}
-        isOpen={showTooltip}
-        coordinates={clickCoordinates}
-        on:close={handleModalClose}
-    />
-
-    <!-- Editor for dev only -->
-    {#if import.meta.env.DEV}
-        <div class="fixed bottom-0 left-0 right-0 md:right-auto md:w-80 bg-white shadow-lg rounded-t-lg md:rounded-t-none md:rounded-l-lg z-50">
-            <StatusModal
-                isOpen={showModal}
-                feature={selectedFeature}
-                {currentStatus}
-                {currentNotes}
-                onSave={updateStatus}
-                onClose={handleModalClose}
-            />
-        </div>
-    {/if}
-{/if}
+</div>
 
 <style>
     :global(.leaflet-container) {
