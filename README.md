@@ -44,7 +44,7 @@ pnpm run build
    - Build the static site
    - Deploy to GitHub Pages
 
-The site will be available at `https://[your-username].github.io`
+The site will be available at `https://[your-username].github.io/map-marker`
 
 ## Data Management
 

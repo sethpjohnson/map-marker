@@ -164,8 +164,3 @@ Key points:
 5. **SQLite**:  
    [https://www.sqlite.org/index.html](https://www.sqlite.org/index.html)
 
----
-
-## 10. Conclusion
-
-This document details the scope, architecture, and flow for creating a SvelteKit-based web application that displays Phillippi Creek polygons from a large GeoJSON dataset using Leaflet, with dredging status tracking via a local SQLite database. 
