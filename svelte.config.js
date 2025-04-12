@@ -16,7 +16,9 @@ const config = {
 			pages: 'build',
 			assets: 'build',
 			fallback: 'index.html',
-			precompress: false
+			precompress: false,
+			// Exclude README from build
+			exclude: ['README.md']
 		}),
 		paths: {
 			base: process.env.NODE_ENV === 'production' ? '/map-marker' : ''
