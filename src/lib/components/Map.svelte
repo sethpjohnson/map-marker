@@ -69,7 +69,8 @@
         geojsonLayer?.eachLayer((layer: any) => {
             if (layer.feature?.properties?.id === featureId) {
                 layer.setStyle({
-                    color: statusColors[data.status] || '#000',
+                    fillColor: statusColors[data.status] || '#000',
+                    color: '#000',
                     weight: 1,
                     opacity: 0.3,
                     fillOpacity: 0.8
@@ -116,7 +117,11 @@
                                 notes: status.notes
                             };
                             layer.setStyle({
-                                fillColor: statusColors[status.status as Status]
+                                fillColor: statusColors[status.status as Status] || '#000',
+                                color: '#000',
+                                weight: 1,
+                                opacity: 0.3,
+                                fillOpacity: 0.8
                             });
                         }
                     }
@@ -148,10 +153,17 @@
 
         geojsonLayer = new L.GeoJSON(data, {
             style: (feature?: Feature<Geometry, GeoJsonProperties>): PathOptions => {
-                if (!feature) return { color: '#000' };
+                if (!feature) return { 
+                    fillColor: '#000',
+                    color: '#000',
+                    weight: 1,
+                    opacity: 0.3,
+                    fillOpacity: 0.8
+                };
                 const status = feature.properties?.status as Status;
                 return {
-                    color: statusColors[status] || '#000',
+                    fillColor: statusColors[status] || '#000',
+                    color: '#000',
                     weight: 1,
                     opacity: 0.3,
                     fillOpacity: 0.8
