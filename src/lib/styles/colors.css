@@ -1,0 +1,10 @@
+:root {
+    --status-unknown: #808080;
+    --status-survey-planned: #fbba49;
+    --status-engineering: #802d00;
+    --status-ready-not-funded: #ff009d;
+    --status-ready-partially-funded: #ae00ff;
+    --status-ready-fully-funded: #0033ff;
+    --status-in-progress: #4be8f6;
+    --status-complete: #008009;
+} 

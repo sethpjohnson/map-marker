@@ -16,14 +16,14 @@
 
     type Status = 'unknown' | 'survey_planned' | 'engineering' | 'ready_not_funded' | 'ready_partially_funded' | 'ready_fully_funded' | 'in_progress' | 'complete';
     const statusColors: Record<Status, string> = {
-        'unknown': '#808080', // Gray
-        'survey_planned': '#87CEEB', // Light Blue
-        'engineering': '#800080', // Purple
-        'ready_not_funded': '#FF0000', // Red
-        'ready_partially_funded': '#FFA500', // Orange
-        'ready_fully_funded': '#FFFF00', // Yellow
-        'in_progress': '#008000', // Green
-        'complete': '#000080' // Dark Blue
+        'unknown': getComputedStyle(document.documentElement).getPropertyValue('--status-unknown'),
+        'survey_planned': getComputedStyle(document.documentElement).getPropertyValue('--status-survey-planned'),
+        'engineering': getComputedStyle(document.documentElement).getPropertyValue('--status-engineering'), 
+        'ready_not_funded': getComputedStyle(document.documentElement).getPropertyValue('--status-ready-not-funded'),
+        'ready_partially_funded': getComputedStyle(document.documentElement).getPropertyValue('--status-ready-partially-funded'),
+        'ready_fully_funded': getComputedStyle(document.documentElement).getPropertyValue('--status-ready-fully-funded'),
+        'in_progress': getComputedStyle(document.documentElement).getPropertyValue('--status-in-progress'),
+        'complete': getComputedStyle(document.documentElement).getPropertyValue('--status-complete')
     };
 
     async function fetchStatus(featureId: string) {

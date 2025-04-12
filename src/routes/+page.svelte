@@ -1,6 +1,7 @@
 <script lang="ts">
     import { browser } from '$app/environment';
     import Map from '$lib/components/Map.svelte';
+    import '$lib/styles/colors.css';
 </script>
 
 <div class="min-h-screen bg-base-200">
@@ -24,35 +25,35 @@
                 <h2 class="text-xl font-semibold mb-4">Status Legend</h2>
                 <div class="space-y-2">
                     <div class="flex items-center">
-                        <div class="w-4 h-4 bg-[#808080] mr-2"></div>
+                        <div class="w-4 h-4 bg-[var(--status-unknown)] mr-2"></div>
                         <span>Unknown</span>
                     </div>
                     <div class="flex items-center">
-                        <div class="w-4 h-4 bg-[#87CEEB] mr-2"></div>
+                        <div class="w-4 h-4 bg-[var(--status-survey-planned)] mr-2"></div>
                         <span>Survey Planned</span>
                     </div>
                     <div class="flex items-center">
-                        <div class="w-4 h-4 bg-[#800080] mr-2"></div>
+                        <div class="w-4 h-4 bg-[var(--status-engineering)] mr-2"></div>
                         <span>Engineering</span>
                     </div>
                     <div class="flex items-center">
-                        <div class="w-4 h-4 bg-[#FF0000] mr-2"></div>
+                        <div class="w-4 h-4 bg-[var(--status-ready-not-funded)] mr-2"></div>
                         <span>Ready - Not Funded</span>
                     </div>
                     <div class="flex items-center">
-                        <div class="w-4 h-4 bg-[#FFA500] mr-2"></div>
+                        <div class="w-4 h-4 bg-[var(--status-ready-partially-funded)] mr-2"></div>
                         <span>Ready - Partially Funded</span>
                     </div>
                     <div class="flex items-center">
-                        <div class="w-4 h-4 bg-[#FFFF00] mr-2"></div>
+                        <div class="w-4 h-4 bg-[var(--status-ready-fully-funded)] mr-2"></div>
                         <span>Ready - Fully Funded</span>
                     </div>
                     <div class="flex items-center">
-                        <div class="w-4 h-4 bg-[#008000] mr-2"></div>
+                        <div class="w-4 h-4 bg-[var(--status-in-progress)] mr-2"></div>
                         <span>In Progress</span>
                     </div>
                     <div class="flex items-center">
-                        <div class="w-4 h-4 bg-[#000080] mr-2"></div>
+                        <div class="w-4 h-4 bg-[var(--status-complete)] mr-2"></div>
                         <span>Complete</span>
                     </div>
                 </div>
