@@ -28,8 +28,6 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install
-      - name: Export database to JSON
-        run: pnpm run export-db
       - name: Build
         run: pnpm run build
       - name: Create .nojekyll file
