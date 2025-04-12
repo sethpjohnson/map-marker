@@ -29,7 +29,7 @@
 
     async function fetchStatus(featureId: string) {
         try {
-            const response = await fetch(import.meta.env.DEV ? `/api/dredging_sections?feature_id=${featureId}` : '/dredging_sections.json');
+            const response = await fetch(import.meta.env.DEV ? '/dredging_sections.json' : '/map-marker/dredging_sections.json');
             if (response.ok) {
                 const data = await response.json();
                 if (import.meta.env.DEV) {
@@ -81,7 +81,7 @@
                     });
                 }
             } else {
-                const response = await fetch('/dredging_sections.json');
+                const response = await fetch('/map-marker/dredging_sections.json');
                 if (response.ok) {
                     const jsonData = await response.json();
                     const sections = jsonData.sections;
@@ -141,7 +141,7 @@
 
     async function applyStatusToFeatures() {
         try {
-            const response = await fetch(import.meta.env.DEV ? '/api/dredging_sections' : '/dredging_sections.json');
+            const response = await fetch(import.meta.env.DEV ? '/api/dredging_sections' : '/map-marker/dredging_sections.json');
             if (response.ok) {
                 const data = await response.json();
                 geojsonLayer.eachLayer((layer: any) => {
@@ -184,7 +184,7 @@
         }).addTo(map);
 
         // Load GeoJSON data
-        const response = await fetch('/phillippi_creek.geojson');
+        const response = await fetch(import.meta.env.DEV ? '/phillippi_creek.geojson' : '/map-marker/phillippi_creek.geojson');
         const data = await response.json();
 
         geojsonLayer = new L.GeoJSON(data, {
