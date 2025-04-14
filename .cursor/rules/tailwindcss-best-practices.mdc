@@ -1,0 +1,13 @@
+---
+description: 
+globs: **/*.svelte,**/*.css
+alwaysApply: false
+---
+
+# Best practices for styling with Tailwind CSS
+
+- Use utility classes for rapid development and maintainability
+- Create custom components for reusable UI elements
+- Utilize Tailwind's responsive utilities for mobile-friendly designs
+- Keep your CSS bundle size small by purging unused styles
+- Use Tailwind's JIT mode for faster build times and smaller production CSS

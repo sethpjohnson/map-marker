@@ -1,0 +1,13 @@
+---
+description: 
+globs: **/*.svelte,**/*.css
+alwaysApply: false
+---
+
+# Best practices for using DaisyUI components
+
+- Follow DaisyUI's theming system for consistent UI across your application
+- Use DaisyUI's pre-built components to speed up development
+- Customize DaisyUI components using Tailwind utility classes
+- Ensure accessibility by using DaisyUI's built-in ARIA attributes
+- Keep your UI components modular and reusable

@@ -1,0 +1,13 @@
+---
+description: 
+globs: **/package.json
+alwaysApply: false
+---
+
+# Best practices for using pnpm as a package manager
+
+- Use `pnpm install --frozen-lockfile` for consistent dependencies across environments
+- Leverage pnpm's workspace feature for monorepos
+- Regularly update dependencies using `pnpm update`
+- Use `pnpm dlx` for running one-off scripts without installing globally
+- Take advantage of pnpm's faster installation times and smaller disk usage

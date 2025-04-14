@@ -1,0 +1,13 @@
+---
+description: 
+globs: **/*.svelte,**/*.ts,**/*.js
+alwaysApply: false
+---
+
+# Best practices for SvelteKit applications and routing
+
+- Use server-side rendering for improved SEO and performance
+- Leverage SvelteKit's file-based routing for clear project structure
+- Implement proper error handling with `+error.svelte` pages
+- Use Svelte stores for global state management
+- Optimize load functions to reduce server load and improve user experience

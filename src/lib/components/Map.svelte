@@ -7,6 +7,11 @@
     import PopupContent from './PopupContent.svelte';
     import MapControls from './MapControls.svelte';
     import MapDebug from './MapDebug.svelte';
+    import { createEventDispatcher } from 'svelte';
+
+    const dispatch = createEventDispatcher<{
+        featureClick: Feature<Geometry, GeoJsonProperties>;
+    }>();
 
     export let hoveredFeature: Feature<Geometry, GeoJsonProperties> | null = null;
     
@@ -30,46 +35,8 @@
         'complete': getComputedStyle(document.documentElement).getPropertyValue('--status-complete')
     };
 
-    export async function updateStatus(data: { feature_id: string; status: Status; notes: string }) {
-        if (!selectedFeature) return;
-
-        selectedFeature.properties = {
-            ...selectedFeature.properties,
-            status: data.status,
-            notes: data.notes
-        };
-
-        geojsonLayer?.eachLayer((layer: any) => {
-            if (layer.feature?.properties?.facilityid === data.feature_id) {
-                layer.setStyle({
-                    fillColor: statusColors[data.status] || '#000',
-                    color: '#000',
-                    weight: 1,
-                    opacity: 0.3,
-                    fillOpacity: 0.8
-                });
-            }
-        });
-
-        const savedStatus = JSON.parse(localStorage.getItem('creek_status') || '{}');
-        savedStatus[data.feature_id] = {
-            status: data.status,
-            notes: data.notes
-        };
-        localStorage.setItem('creek_status', JSON.stringify(savedStatus));
-
-        if (currentPopup) {
-            const popupDiv = document.createElement('div');
-            new PopupContent({
-                target: popupDiv,
-                props: {
-                    feature: selectedFeature,
-                    status: data.status,
-                    notes: data.notes
-                }
-            });
-            currentPopup.setContent(popupDiv.innerHTML);
-        }
+    $: if (hoveredFeature) {
+        selectedFeature = hoveredFeature;
     }
 
     function handleFeatureClick(feature: Feature<Geometry, GeoJsonProperties>, e: L.LeafletMouseEvent) {
@@ -100,6 +67,9 @@
         .setLatLng(e.latlng)
         .setContent(popupDiv.innerHTML)
         .openOn(map);
+
+        // Dispatch the feature click event
+        dispatch('featureClick', feature);
     }
 
     function handleFeatureUnclick() {
@@ -110,7 +80,7 @@
 
     async function applyStatusToFeatures() {
         try {
-            const response = await fetch(import.meta.env.DEV ? '/api/dredging_sections' : '/map-marker/dredging_sections.json');
+            const response = await fetch(import.meta.env.DEV ? '/api/dredging_sections' : '/dredging_sections.json');
             if (response.ok) {
                 const data = await response.json();
                 geojsonLayer.eachLayer((layer: any) => {
@@ -141,22 +111,94 @@
         }
     }
 
+    function getStatusColor(status: string): string {
+        switch (status) {
+            case 'unknown':
+                return 'var(--status-unknown)';
+            case 'survey_planned':
+                return 'var(--status-survey-planned)';
+            case 'engineering':
+                return 'var(--status-engineering)';
+            case 'ready_not_funded':
+                return 'var(--status-ready-not-funded)';
+            case 'ready_partially_funded':
+                return 'var(--status-ready-partially-funded)';
+            case 'ready_fully_funded':
+                return 'var(--status-ready-fully-funded)';
+            case 'in_progress':
+                return 'var(--status-in-progress)';
+            case 'complete':
+                return 'var(--status-complete)';
+            default:
+                return 'var(--status-unknown)';
+        }
+    }
+
+    function styleFeature(feature?: Feature<Geometry, GeoJsonProperties>) {
+        if (!feature) {
+            return {
+                fillColor: 'var(--status-unknown)',
+                weight: 1,
+                opacity: 0.3,
+                color: 'white',
+                dashArray: '3',
+                fillOpacity: 0.8
+            };
+        }
+        return {
+            fillColor: getStatusColor(feature.properties?.status || 'unknown'),
+            weight: 1,
+            opacity: 0.3,
+            color: 'white',
+            dashArray: '3',
+            fillOpacity: 0.8
+        };
+    }
+
+    function onEachFeature(feature: Feature<Geometry, GeoJsonProperties>, layer: L.Layer) {
+        layer.on({
+            mouseover: (e) => {
+                const layer = e.target;
+                layer.setStyle({
+                    weight: 2,
+                    color: '#666',
+                    dashArray: '',
+                    fillOpacity: 0.7
+                });
+                layer.bringToFront();
+                hoveredFeature = feature;
+            },
+            mouseout: (e) => {
+                geojsonLayer.resetStyle(e.target);
+                hoveredFeature = null;
+            },
+            click: (e: L.LeafletMouseEvent) => {
+                handleFeatureClick(feature, e);
+                dispatch('featureClick', feature);
+            }
+        });
+    }
+
     onMount(async () => {
         if (!browser) return;
 
+        // Initialize map asynchronously
         leaflet = await import('leaflet');
         await import('leaflet/dist/leaflet.css');
 
+        // Initialize the map
         map = leaflet.map(mapContainer).setView([27.29550, -82.52077], 14);
 
+        // Add the tile layer
         leaflet.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
         }).addTo(map);
 
+        // Load and add the GeoJSON data
         const response = await fetch(import.meta.env.DEV ? '/phillippi_creek.geojson' : '/map-marker/phillippi_creek.geojson');
         const data = await response.json();
-
-        geojsonLayer = new leaflet.GeoJSON(data, {
+        
+        geojsonLayer = leaflet.geoJSON(data, {
             style: (feature?: Feature<Geometry, GeoJsonProperties>): PathOptions => {
                 if (!feature) return { 
                     fillColor: '#000',
@@ -174,37 +216,53 @@
                     fillOpacity: 0.8
                 };
             },
-            onEachFeature: (feature: Feature<Geometry, GeoJsonProperties>, layer: L.Layer) => {
-                layer.on({
-                    click: (e: L.LeafletMouseEvent) => handleFeatureClick(feature, e),
-                    mouseout: () => {
-                        if (layer instanceof leaflet.Path) {
-                            layer.setStyle({
-                                weight: 1,
-                                opacity: 0.3,
-                                fillOpacity: 0.8
-                            });
-                        }
-                    }
-                });
-            }
+            onEachFeature
         }).addTo(map);
 
-        mapContainer.addEventListener('touchstart', (e) => {
-            debugMessages = [...debugMessages, `Global touchstart: ${JSON.stringify({
-                type: e.type,
-                touches: e.touches.length,
-                target: (e.target as HTMLElement)?.tagName
-            })}`];
-        }, { passive: false });
-
+        // Apply status to features
         await applyStatusToFeatures();
+
+        // Listen for status updates
+        window.addEventListener('statusUpdated', ((event: Event) => {
+            const customEvent = event as CustomEvent<{ 
+                featureId: string; 
+                newStatus: Status;
+                feature: Feature<Geometry, GeoJsonProperties>;
+            }>;
+            const { featureId, newStatus, feature } = customEvent.detail;
+            
+            geojsonLayer.eachLayer((layer: any) => {
+                if (layer.feature?.properties?.facilityid === featureId) {
+                    layer.feature.properties.status = newStatus;
+                    layer.setStyle({
+                        fillColor: statusColors[newStatus] || '#000',
+                        color: '#000',
+                        weight: 1,
+                        opacity: 0.3,
+                        fillOpacity: 0.8
+                    });
+
+                    // Update the popup if it's open
+                    if (currentPopup && currentPopup.isOpen()) {
+                        const popupDiv = document.createElement('div');
+                        new PopupContent({
+                            target: popupDiv,
+                            props: {
+                                feature,
+                                status: newStatus,
+                                notes: feature.properties?.notes || ''
+                            }
+                        });
+                        currentPopup.setContent(popupDiv.innerHTML);
+                    }
+                }
+            });
+        }) as EventListener);
     });
 </script>
 
 <div class="w-full h-full" bind:this={mapContainer}>
     <MapControls {map} {leaflet} />
-
 </div>
 
 <style>
@@ -240,16 +298,8 @@
         }
     }
 
-    /* Desktop sidebar */
-    @media (min-width: 768px) {
-        .fixed {
-            bottom: 0;
-            left: 0;
-            width: 320px;
-            height: 100%;
-            border-radius: 0;
-            border-top-left-radius: 0.5rem;
-            border-bottom-left-radius: 0.5rem;
-        }
+    :global(.custom-popup) {
+        padding: 0;
+        margin: 0;
     }
 </style> 

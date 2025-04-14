@@ -1,0 +1,10 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Forms for data entry should only be visible in development mode
+
+- Form components should check for `import.meta.env.DEV` before rendering
+- Example: In `PopupContent.svelte`, the form is wrapped in `{#if isDev}` where `isDev` is passed from the parent component

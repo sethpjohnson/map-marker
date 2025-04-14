@@ -1,10 +1,21 @@
 :root {
-    --status-unknown: #808080;
-    --status-survey-planned: #fbba49;
-    --status-engineering: #802d00;
-    --status-ready-not-funded: #ff009d;
-    --status-ready-partially-funded: hsla(115, 100%, 40%, 0.468);
-    --status-ready-fully-funded: #06b600;
-    --status-in-progress: #4be8f6;
-    --status-complete: #1a0080;
+    /* Neutral gray for unknown status */
+    --status-unknown: #94A3B8;
+    
+    /* Subtle warm tone for planned status (most common) */
+    --status-survey-planned: #FCD34D;
+    
+    /* Muted rust for engineering */
+    --status-engineering: #B45309;
+    
+    /* Attention-grabbing colors for ready states */
+    --status-ready-not-funded: #EC4899;
+    --status-ready-partially-funded: rgba(236, 72, 153, 0.6);
+    --status-ready-fully-funded: #10B981;
+    
+    /* Distinct blue for in progress */
+    --status-in-progress: #3B82F6;
+    
+    /* Deep purple for complete */
+    --status-complete: #7C3AED;
 } 

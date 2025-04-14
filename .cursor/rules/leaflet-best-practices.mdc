@@ -1,0 +1,14 @@
+---
+description: 
+globs: **/*.svelte,**/*.ts,**/*.js
+alwaysApply: false
+---
+
+# Best practices for using Leaflet in mapping applications
+
+- Use Leaflet's built-in methods for efficient map interactions
+- Implement proper event handling for map clicks and hovers
+- Optimize GeoJSON loading by filtering data on the server-side when possible
+- Use Leaflet's `onEachFeature` function to bind custom behaviors to map elements
+- Consider using Leaflet plugins for advanced functionality like map exporting
+
