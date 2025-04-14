@@ -8,8 +8,8 @@
 <div class="leaflet-control-container">
     <div class="leaflet-top leaflet-left">
         <div class="leaflet-control-zoom leaflet-bar leaflet-control">
-            <a class="leaflet-control-zoom-in" href="#" title="Zoom in" role="button" aria-label="Zoom in">+</a>
-            <a class="leaflet-control-zoom-out" href="#" title="Zoom out" role="button" aria-label="Zoom out">-</a>
+            <button class="leaflet-control-zoom-in" title="Zoom in" aria-label="Zoom in">+</button>
+            <button class="leaflet-control-zoom-out" title="Zoom out" aria-label="Zoom out">-</button>
         </div>
     </div>
 </div>

@@ -3,7 +3,7 @@
 
 </script>
 
-<div class="space-y-2">
+<div class="hidden md:block space-y-2">
     <div class="flex items-center">
         <div class="w-4 h-4 bg-[var(--status-unknown)] mr-2"></div>
         <span>Unknown</span>

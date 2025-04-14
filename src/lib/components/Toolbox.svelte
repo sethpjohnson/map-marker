@@ -9,16 +9,14 @@
 </script>
 
 <div class="bg-white p-4 rounded-lg shadow-lg h-full">
-    <div class="mb-4">
-        <h2 class="text-xl font-semibold">Toolbox</h2>
-    </div>
+
 
     {#if isOpen}
         <div class="space-y-4">
             <!-- Status Legend Section -->
             <div>
-                <h3 class="text-lg font-medium mb-2">Status Legend</h3>
-                <StatusLegend {isOpen} />
+                
+                <StatusLegend />
             </div>
 
             <!-- Status Update Form (Development Only) -->
