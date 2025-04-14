@@ -80,7 +80,7 @@
 
     async function applyStatusToFeatures() {
         try {
-            const response = await fetch(import.meta.env.DEV ? '/api/dredging_sections' : '/dredging_sections.json');
+            const response = await fetch(import.meta.env.DEV ? '/api/dredging_sections' : '/map-marker/dredging_sections.json');
             if (response.ok) {
                 const data = await response.json();
                 geojsonLayer.eachLayer((layer: any) => {
