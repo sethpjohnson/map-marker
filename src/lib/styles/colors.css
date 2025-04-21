@@ -2,9 +2,12 @@
     /* Neutral gray for unknown status */
     --status-unknown: #94A3B8;
     
-    /* Subtle warm tone for planned status (most common) */
-    --status-survey-planned: #FCD34D;
+    /* Planned Survey status */
+    --status-survey-planned: #ff5c2e;
     
+    /* Survey Completed */
+    --status-survey-completed: #FCD34D;
+
     /* Muted rust for engineering */
     --status-engineering: #B45309;
     

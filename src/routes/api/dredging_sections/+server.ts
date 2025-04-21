@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit';
 import { getDredgingSections, updateDredgingSection } from '$lib/db';
 import type { DredgingSection } from '$lib/db';
+import type { RequestEvent } from '@sveltejs/kit';
 
 export async function GET() {
     try {
@@ -12,7 +13,7 @@ export async function GET() {
     }
 }
 
-export async function POST({ request }) {
+export async function POST({ request }: RequestEvent) {
     const data = await request.json() as DredgingSection;
     updateDredgingSection(data);
     return json({ success: true });

@@ -4,6 +4,9 @@ import type { RequestEvent } from '@sveltejs/kit';
 
 export async function PUT({ params, request }: RequestEvent) {
     try {
+        if (!params.id) {
+            return new Response('ID is required', { status: 400 });
+        }
         const data = await request.json();
         updateDredgingSection({
             feature_id: params.id,

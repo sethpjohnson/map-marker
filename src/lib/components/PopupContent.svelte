@@ -7,7 +7,7 @@
 </script>
 
 <div class="p-3">
-    <h3 class="text-base font-semibold text-gray-800 mb-3">NAE: {feature.properties?.name || 'Unnamed Section'}</h3>
+    <h3 class="text-base font-semibold text-gray-800 mb-3">{feature.properties?.name || 'Unnamed Section'}</h3>
     <table class="w-full text-sm">
         <tbody>
             <tr class="border-b border-gray-100">
@@ -17,14 +17,6 @@
             <tr class="border-b border-gray-100">
                 <td class="py-1.5 text-gray-500 font-medium">Status</td>
                 <td class="py-1.5 text-gray-700 capitalize">{(status || 'unknown').replace(/_/g, ' ')}</td>
-            </tr>
-            <tr class="border-b border-gray-100">
-                <td class="py-1.5 text-gray-500 font-medium">Length</td>
-                <td class="py-1.5 text-gray-700">{feature.properties?.length || 'Unknown'}</td>
-            </tr>
-            <tr>
-                <td class="py-1.5 text-gray-500 font-medium">Area</td>
-                <td class="py-1.5 text-gray-700">{feature.properties?.area || 'Unknown'}</td>
             </tr>
         </tbody>
     </table>

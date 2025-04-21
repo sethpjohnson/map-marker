@@ -27,6 +27,7 @@
     const statusColors: Record<Status, string> = {
         'unknown': getComputedStyle(document.documentElement).getPropertyValue('--status-unknown'),
         'survey_planned': getComputedStyle(document.documentElement).getPropertyValue('--status-survey-planned'),
+        'survey_completed': getComputedStyle(document.documentElement).getPropertyValue('--status-survey-completed'),
         'engineering': getComputedStyle(document.documentElement).getPropertyValue('--status-engineering'), 
         'ready_not_funded': getComputedStyle(document.documentElement).getPropertyValue('--status-ready-not-funded'),
         'ready_partially_funded': getComputedStyle(document.documentElement).getPropertyValue('--status-ready-partially-funded'),
@@ -117,6 +118,8 @@
                 return 'var(--status-unknown)';
             case 'survey_planned':
                 return 'var(--status-survey-planned)';
+            case 'survey_completed':
+                return 'var(--status-survey-completed)';
             case 'engineering':
                 return 'var(--status-engineering)';
             case 'ready_not_funded':

@@ -13,8 +13,12 @@
         <span>Survey Planned</span>
     </div>
     <div class="flex items-center">
+        <div class="w-4 h-4 bg-[var(--status-survey-completed)] mr-2"></div>
+        <span>Survey Completed</span>
+    </div>
+    <div class="flex items-center">
         <div class="w-4 h-4 bg-[var(--status-engineering)] mr-2"></div>
-        <span>Engineering</span>
+        <span>Engineering & Permitting</span>
     </div>
     <div class="flex items-center">
         <div class="w-4 h-4 bg-[var(--status-ready-not-funded)] mr-2"></div>

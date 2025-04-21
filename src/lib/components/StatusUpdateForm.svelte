@@ -10,6 +10,7 @@
     const statusOptions = [
         { value: 'unknown', label: 'Unknown' },
         { value: 'survey_planned', label: 'Survey Planned' },
+        { value: 'survey_completed', label: 'Survey Completed' },
         { value: 'engineering', label: 'Engineering' },
         { value: 'ready_not_funded', label: 'Ready - Not Funded' },
         { value: 'ready_partially_funded', label: 'Ready - Partially Funded' },
@@ -20,10 +21,12 @@
 
     // Initialize selectedStatus with the feature's current status
     let selectedStatus = selectedFeature?.properties?.status || 'unknown';
+    let notes = selectedFeature?.properties?.notes || '';
 
-    // Update selectedStatus only when selectedFeature changes to a different feature
+    // Update selectedStatus and notes only when selectedFeature changes to a different feature
     $: if (selectedFeature && selectedFeature.properties?.facilityid !== previousFeatureId) {
         selectedStatus = selectedFeature.properties?.status || 'unknown';
+        notes = selectedFeature.properties?.notes || '';
         previousFeatureId = selectedFeature.properties?.facilityid;
     }
 
@@ -40,7 +43,7 @@
                 },
                 body: JSON.stringify({
                     status: selectedStatus,
-                    notes: selectedFeature.properties?.notes || ''
+                    notes: notes
                 })
             });
 
@@ -51,7 +54,8 @@
             // Update the feature's properties
             selectedFeature.properties = {
                 ...selectedFeature.properties,
-                status: selectedStatus
+                status: selectedStatus,
+                notes: notes
             };
 
             // Dispatch a custom event to notify the map to update
@@ -86,6 +90,18 @@
                         <option value={option.value}>{option.label}</option>
                     {/each}
                 </select>
+            </div>
+            <div>
+                <label for="notes" class="label">
+                    <span class="label-text">Notes</span>
+                </label>
+                <textarea
+                    id="notes"
+                    bind:value={notes}
+                    class="textarea textarea-bordered w-full"
+                    placeholder="Add any additional notes..."
+                    rows="3"
+                ></textarea>
             </div>
             <button
                 type="submit"

@@ -2,14 +2,21 @@
     import type L from 'leaflet';
     
     export let map: L.Map;
-    export let leaflet: typeof L;
+
+    function zoomIn() {
+        map.zoomIn();
+    }
+
+    function zoomOut() {
+        map.zoomOut();
+    }
 </script>
 
 <div class="leaflet-control-container">
     <div class="leaflet-top leaflet-left">
         <div class="leaflet-control-zoom leaflet-bar leaflet-control">
-            <button class="leaflet-control-zoom-in" title="Zoom in" aria-label="Zoom in">+</button>
-            <button class="leaflet-control-zoom-out" title="Zoom out" aria-label="Zoom out">-</button>
+            <button class="leaflet-control-zoom-in" title="Zoom in" aria-label="Zoom in" on:click={zoomIn}>+</button>
+            <button class="leaflet-control-zoom-out" title="Zoom out" aria-label="Zoom out" on:click={zoomOut}>-</button>
         </div>
     </div>
 </div>

@@ -9,16 +9,10 @@
 </script>
 
 <div class="bg-white p-4 rounded-lg shadow-lg h-full">
-
-
     {#if isOpen}
-        <div class="space-y-4">
+        <div>
             <!-- Status Legend Section -->
-            <div>
-                
-                <StatusLegend />
-            </div>
-
+            <StatusLegend />
             <!-- Status Update Form (Development Only) -->
             <StatusUpdateForm {selectedFeature} />
         </div>
