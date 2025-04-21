@@ -23,7 +23,7 @@
     let currentPopup: L.Popup | null = null;
     let debugMessages: string[] = [];
 
-    type Status = 'unknown' | 'survey_planned' | 'engineering' | 'ready_not_funded' | 'ready_partially_funded' | 'ready_fully_funded' | 'in_progress' | 'complete';
+    type Status = 'unknown' | 'survey_planned' | 'survey_completed' | 'engineering' | 'ready_not_funded' | 'ready_partially_funded' | 'ready_fully_funded' | 'in_progress' | 'complete';
     const statusColors: Record<Status, string> = {
         'unknown': getComputedStyle(document.documentElement).getPropertyValue('--status-unknown'),
         'survey_planned': getComputedStyle(document.documentElement).getPropertyValue('--status-survey-planned'),
